@@ -441,15 +441,13 @@ export default defineComponent({
 This example shows you how to download a file to a file in [the `/tmp` directory](/code/nodejs/working-with-files/). This can be especially helpful for downloading large files: it streams the file to disk, minimizing the memory the workflow uses when downloading the file.
 
 ```javascript
-import stream from "stream";
-import { promisify } from "util";
+import { pipeline } from "stream/promises";
 import fs from "fs";
 import got from "got";
 
 export default defineComponent({
   async run({ steps, $ }) {
     // Download the webpage HTML file to /tmp
-    const pipeline = promisify(stream.pipeline);
     return await pipeline(
       got.stream("https://example.com"),
       fs.createWriteStream('/tmp/file.html')
@@ -458,7 +456,7 @@ export default defineComponent({
 })
 ```
 
-[Copy this workflow](https://pipedream.com/@dylburger/download-a-file-from-a-url-to-tmp-p_pWCYA8y/edit) to run this example.
+[Copy this workflow](https://pipedream.com/new?h=tch_wqKfoW) to run this example.
 
 ## Upload a file from the `/tmp` directory
 
@@ -488,11 +486,17 @@ export default defineComponent({
 });
 ```
 
-[Copy this workflow](https://pipedream.com/@dylburger/stream-a-file-upload-p_6lC1d2Z/edit) to run this example.
+[Copy this workflow](https://pipedream.com/new?h=tch_Oknf4r) to run this example.
+
+## IP addresses for HTTP requests made from Pipedream workflows
+
+By default, [HTTP requests made from Pipedream can come from a large range of IP addresses](/privacy-and-security/#hosting-details). **If you need to restrict the IP addresses HTTP requests come from, you have two options**:
+
+- [Use a Pipedream VPC](/workflows/vpc/) to route all outbound HTTP requests through a single IP address
+- If you don't need to access the HTTP response data, you can [use `$send.http()`](/destinations/http/) to send requests from a [limited set of IP addresses](/destinations/http/#ip-addresses-for-pipedream-http-requests).
+
 
 ## Use an HTTP proxy to proxy requests through another host
-
-When you make HTTP requests to certain services, they might require you whitelist a set of IP addresses those requests come from. Often, this is to improve the security of the target service.
 
 By default, HTTP requests made from Pipedream can come from a range of IP addresses. **If you need to make requests from a single IP address, you can route traffic through an HTTP proxy**:
 
@@ -557,21 +561,6 @@ export default defineComponent({
 ```
 
 [Copy this workflow to run this code on Pipedream](https://pipedream.com/new?h=tch_mypfby).
-
-::: tip Managed HTTP Proxy Service
-
-If your workspace has the Advanced, Business or Enterprise plan, [reach out to our team](https://pipedream.com/support). We operate a proxy that you can use for HTTP requests made through Pipedream.
-
-:::
-
-
-
-## IP addresses for HTTP requests made from Pipedream workflows
-
-By default, [HTTP requests made from Pipedream can come from a large range of IP addresses](/workflows/networking/). **If you need to restrict the IP addresses HTTP requests come from, you have two options**:
-
-- [Use an HTTP proxy to proxy requests](#use-an-http-proxy-to-proxy-requests-through-another-host)
-- If you don't need to access the HTTP response data, you can [use `$send.http()`](/destinations/http/) to send requests from a [limited set of IP addresses](/destinations/http/#ip-addresses-for-pipedream-http-requests).
 
 ## Stream a downloaded file directly to another URL
 

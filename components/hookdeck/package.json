@@ -1,16 +1,18 @@
 {
   "name": "@pipedream/hookdeck",
-  "version": "0.0.1",
+  "version": "0.2.0",
   "description": "Pipedream Hookdeck Components",
-  "main": "dist/app/hookdeck.app.mjs",
+  "main": "hookdeck.app.mjs",
   "keywords": [
     "pipedream",
     "hookdeck"
   ],
-  "files": ["dist"],
   "homepage": "https://pipedream.com/apps/hookdeck",
   "author": "Pipedream <support@pipedream.com> (https://pipedream.com/)",
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "@pipedream/platform": "^1.5.1"
   }
 }
