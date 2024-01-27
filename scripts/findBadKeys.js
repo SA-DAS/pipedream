@@ -19,12 +19,11 @@ const isSourceFile = (subname) =>
   subname.endsWith(".mjs") || subname.endsWith(".js") || subname.endsWith(".mts") || subname.endsWith(".ts");
 
 const isCommonFile = (subname) => {
-  const regex = /\/common.*(\/|\.js|\.mjs|\.ts|\.mts|)/g;
+  const regex = /\/?common.*(\/|\.js|\.mjs|\.ts|\.mts|)/g;
   return regex.test(subname);
 };
 
-const isTestEventFile = (subname) =>
-  subname.split("/").pop() === "test-event.mjs";
+const isTestEventFile = (subname) => subname.includes("test-event.mjs");
 
 const getComponentKey = (p) => {
   const data = fs.readFileSync(p, "utf8");
@@ -91,7 +90,7 @@ function checkKeys(p, nameSlug) {
     }
     if (name.endsWith(".mjs") || name.endsWith(".js") || name.endsWith(".ts") || name.endsWith(".mts")) {
       // ignore test-event files
-      if (isTestEventFile(name)) {
+      if (isCommonFile(name) || isTestEventFile(name)) {
         continue;
       }
       const data = fs.readFileSync(pp, "utf8");

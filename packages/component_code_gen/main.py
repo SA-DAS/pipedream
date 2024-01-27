@@ -1,50 +1,51 @@
 import os
 import argparse
-import templates.generate_actions
-import templates.generate_webhook_sources
-import templates.generate_polling_sources
-import templates.generate_apps
-
-
-available_templates = {
-    'action': templates.generate_actions,
-    'webhook_source': templates.generate_webhook_sources,
-    'polling_source': templates.generate_polling_sources,
-    'app': templates.generate_apps,
-}
-
-
-def main(component_type, app, instructions, tries, verbose=False):
-    if verbose:
-        os.environ['LOGGING_LEVEL'] = 'DEBUG'
-
-    try:
-        templates = available_templates[component_type]
-    except:
-        raise ValueError(
-            f'Templates for {component_type}s are not available. Please choose one of {available_templates.keys()}')
-
-    # this is here so that the DEBUG environment variable is set before the import
-    from code_gen.generate_component_code import generate_code
-    result = generate_code(app, instructions, templates, tries)
-    return result
+import requests
+import markdown_to_json
+from code_gen.generate_for_github_issue import generate_from_issue, generate_from_markdown
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--type', help='Which kind of code you want to generate?',
-                        choices=available_templates.keys(), required=True)
-    parser.add_argument('--app', help='The app_name_slug', required=True)
     parser.add_argument(
-        '--instructions', help='Markdown file with instructions: prompt + api docs', required=True)
-    parser.add_argument('--num_tries', dest='tries', help='The number of times we call the model to generate code',
-                        required=False, default=3, action='store_true')
-    parser.add_argument('--verbose', dest='verbose', help='Set the logging to debug',
-                        required=False, default=False, action='store_true')
+        '--issue', help='The issue number on github', type=int, required=False)
+    parser.add_argument(
+        '--skip-pr', '--skip_pr', dest='skip_pr', help='Generate a PR on github', default=False, action='store_true')
+    parser.add_argument(
+        '--clean', dest='clean', help='Clean git stage', default=False, action='store_true')
+    parser.add_argument(
+        '--remote', dest='remote_name', help='The Git remote name', default='origin')
+    parser.add_argument(
+        '--output-dir', '--output_dir', help='The path for the output dir', default=os.path.join("..", "..", "components"))
+    parser.add_argument(
+        '--num-tries', '--num_tries', dest='tries', help='The number of times we call the model to generate code', type=int, default=2)
+    parser.add_argument(
+        '--instructions', help='The file with markdown instructions', required=False)
+    parser.add_argument(
+        '--verbose', dest='verbose', help='Set the logging to debug', default=False, action='store_true')
     args = parser.parse_args()
 
-    with open(args.instructions, 'r') as f:
-        instructions = f.read()
+    def clean_instructions(instructions):
+        return instructions.replace("\r", "").lower()
 
-    result = main(args.type, args.app, instructions, args.tries, args.verbose)
-    print(result)
+    if args.issue:
+        # parse github issue description
+        instructions = requests.get(
+            f"https://api.github.com/repos/PipedreamHQ/pipedream/issues/{args.issue}").json()["body"]
+        markdown = markdown_to_json.dictify(clean_instructions(instructions))
+        generate_from_issue(markdown, args.issue, output_dir=args.output_dir, generate_pr=not args.skip_pr,
+                            clean=args.clean, verbose=args.verbose, tries=args.tries, remote_name=args.remote_name)
+
+    elif args.instructions:
+        instructions = args.instructions
+
+        if os.path.isfile(instructions):
+            with open(instructions, 'r') as f:
+                instructions = f.read()
+
+        markdown = markdown_to_json.dictify(clean_instructions(instructions))
+        generate_from_markdown(
+            markdown, output_dir=args.output_dir, verbose=args.verbose, tries=args.tries)
+
+    else:
+        raise Exception("Missing required argument: issue or instructions")

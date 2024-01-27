@@ -85,6 +85,10 @@ On the Free tier, Pipedream imposes a limit on the [daily credits](/limits/#dail
 
 Paid plans have no credit limit. [Upgrade here](https://pipedream.com/pricing).
 
+### Runtime Quota Exceeded
+
+You **do not** use credits testing workflows, but workspaces on the **Free** plan are limited to {{$site.themeConfig.DAILY_TESTING_LIMIT}} of test runtime per day. If you exceed this limit when testing in the builder, you'll see a **Runtime Quota Exceeded** error.
+
 ### Timeout
 
 Event sources and workflows have a [default time limit on a given execution](/limits/#time-per-execution). If your code exceeds that limit, you may encounter a **Timeout** error.
@@ -145,3 +149,57 @@ Credit Budgets are configurable limits on your credit usage at the account or wo
 If you're receiving this warning on a source or workflow, this means your allocated Credit Budget has been reached for the defined period.
 
 You can increase this limit at any time in the [billing area of your settings](https://pipedream.com/settings/billing).
+
+## How do I contact Pipedream Support?
+
+Start by filling out the request form at [https://pipedream.com/support](https://pipedream.com/support), providing detailed information about your issue.
+
+### How do I share my workflow with Support?
+
+First, navigate to your **Project Settings** and share your project with Pipedream Support.
+
+If your workflow is _not_ part of a Project, go to the **Workflow Settings** to grant access to us.
+
+When filling out the request form at [https://pipedream.com/support](https://pipedream.com/support), please provide detailed information along with the URL from your browser's address bar, which should look something like:
+
+```
+https://pipedream.com/@yourworkspace/projects/yourproject/test-workflow-pabc123
+```
+
+## Frequently-asked questions
+
+### How do I resolve the error "Undeployed changes — You have made changes to this workflow. Deploy the latest version from the editor"
+
+On workflows that are not [synced with GitHub](/projects/git/), you may notice the following warning at the top of your workflow:
+
+> **Undeployed changes** — You have made changes to this workflow. Deploy the latest version from the editor
+
+This means that you've made some changes to your workflow that you haven't yet deployed. To see a diff of what's changed, we recommend [enabling GitHub sync](/projects/git/), where you'll get a full commit history of changes made to your workflows, synced to your own GitHub repo.
+
+### Is there a way to replay workflow events programmatically?
+
+Not today. Please upvote and add your feedback to [this GitHub issue](https://github.com/PipedreamHQ/pipedream/issues/2784).
+
+### How do I store and retrieve data across workflow executions?
+
+If you operate your own database or data store, you can connect to it directly in Pipedream.
+
+Pipedream also operates a [built-in key-value store](/data-stores/) that you can use to get and set data across workflow executions and different workflows.
+
+### How do I delay the execution of a workflow?
+
+Use Pipedream's [built-in Delay actions](/workflows/flow-control/#delay) to delay a workflow at any step.
+
+### How can I save common functions as steps?
+
+You can create your own custom triggers and actions ("components") on Pipedream using [the Component API](/components/api/). These components are private to your account and can be used in any workflow.
+
+You can also publish common functions in your own package on a public registry like [npm](https://www.npmjs.com/) or [PyPI](https://pypi.org/).
+
+### Is Puppeteer supported in Pipedream?
+
+Yes, see [our Puppeteer docs](/code/nodejs/browser-automation/#puppeteer) for more detail.
+
+### Is Playwright supported in Pipedream?
+
+Yes, see [our Puppeteer docs](/code/nodejs/browser-automation/#playwright) for more detail.
