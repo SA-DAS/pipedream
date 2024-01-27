@@ -23,12 +23,6 @@ export default {
       ],
       description: "Details of issue properties to be add or update, please provide an array of objects with keys and values.",
     },
-    transitionLooped: {
-      type: "boolean",
-      label: "Transition Looped",
-      description: "Whether the transition is looped.",
-      optional: true,
-    },
     update: {
       type: "object",
       label: "Update",
@@ -55,50 +49,50 @@ export default {
         cloudId,
       } = this;
       switch (key) {
-        case constants.FIELD_KEY.PARENT:
-          return {
-            fn: app.getIssues,
-            args: {
-              cloudId,
-              params: {
-                maxResults: 100,
-              },
+      case constants.FIELD_KEY.PARENT:
+        return {
+          fn: app.getIssues,
+          args: {
+            cloudId,
+            params: {
+              maxResults: 100,
             },
-            map: ({ issues }) =>
-              issues?.map(({
-                id: value, key: label,
-              }) => ({
-                value,
-                label,
-              })),
-          };
-        case constants.FIELD_KEY.LABELS:
-          return {
-            fn: app.getLabels,
-            args: {
-              cloudId,
-              params: {
-                maxResults: 100,
-              },
+          },
+          map: ({ issues }) =>
+            issues?.map(({
+              id: value, key: label,
+            }) => ({
+              value,
+              label,
+            })),
+        };
+      case constants.FIELD_KEY.LABELS:
+        return {
+          fn: app.getLabels,
+          args: {
+            cloudId,
+            params: {
+              maxResults: 100,
             },
-            map: ({ values }) => values,
-          };
-        case constants.FIELD_KEY.ISSUETYPE:
-          return {
-            fn: this.getIssueTypes,
-            args: {
-              cloudId,
-            },
-            map: (issueTypes) =>
-              issueTypes?.map(({
-                id: value, name: label
-              }) => ({
-                value,
-                label,
-              })),
-          };
-        default:
-          return {};
+          },
+          map: ({ values }) => values,
+        };
+      case constants.FIELD_KEY.ISSUETYPE:
+        return {
+          fn: this.getIssueTypes,
+          args: {
+            cloudId,
+          },
+          map: (issueTypes) =>
+            issueTypes?.map(({
+              id: value, name: label,
+            }) => ({
+              value,
+              label,
+            })),
+        };
+      default:
+        return {};
       }
     },
     async getDynamicFields({
@@ -199,6 +193,10 @@ export default {
         constants.FIELD_KEY.ISSUETYPE,
       ];
 
+      const keysToConsiderAsArray = [
+        constants.FIELD_KEY.LABELS,
+      ];
+
       return Object.entries(fields)
         .reduce((props, [
           key,
@@ -225,7 +223,12 @@ export default {
                 ? {
                   id: value,
                 }
-                : value,
+                : keysToConsiderAsArray.includes(fieldName) && Array.isArray(value)
+                  ? [
+                    value,
+                    value.length,
+                  ]
+                  : value,
           };
         }, {});
     },

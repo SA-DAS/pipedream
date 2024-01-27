@@ -14,11 +14,11 @@ For example, you can define a data store as a data prop, and reference it at `th
 ```javascript
 export default defineComponent({
   props: {
-    // Define that the "db" variable in our component is a data store
+    // Define that the "data" variable in our component is a data store
     data: { type: "data_store" }
   },
   async run({ steps, $ }) {
-    // Now we can access the data store at "this.store"
+    // Now we can access the data store at "this.data"
     await this.data.get("email");
   }
 });
@@ -28,6 +28,10 @@ export default defineComponent({
 `props` injects variables under `this` scope in components.
 
 In the above example we essentially instructed that this step needs the data store injected into the `this.store` prop. 
+:::
+
+:::warning
+All data store operations are asynchronous, so `await` must be used in order to allow them to complete.
 :::
 
 ## Using the data store
